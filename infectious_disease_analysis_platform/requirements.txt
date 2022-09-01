@@ -1,0 +1,5 @@
+# pip install -r requirements.txt
+django
+timeloop
+numpy
+pandas

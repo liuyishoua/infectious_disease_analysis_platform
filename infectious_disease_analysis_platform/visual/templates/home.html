@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="static/js/jquery.min.js"></script>
+  <link rel="stylesheet" href="static/css/iframe.css">
+  <title>大屏</title>
+</head>
+<body>
+    <ul class="nav">
+    
+      <li class="drop-down">
+        <a href="#"></a>
+        <ul class="drop-down-content">
+          <li>
+            <a href="./home.html">自动切换</a>
+          </li>
+          <li>
+            <a href="./index.html">第一屏</a>
+          </li>
+    
+          <li>
+            <a href="./graph_show.html">第二屏</a>
+          </li>
+          <li>
+            <a href="./third.html">第三屏</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  <div class="home">
+    <iframe id="demo1" src="index.html" frameborder="0" class="state-01 demo1"></iframe>
+    <iframe id="demo2" src="graph_show.html" frameborder="0" class="state-01 demo2"></iframe>
+    <iframe id="demo3" src="third.html" frameborder="0" class="state-01 demo3"></iframe>
+  </div>
+  <script src="static/js/home.js"></script>
+</body>
+</html>

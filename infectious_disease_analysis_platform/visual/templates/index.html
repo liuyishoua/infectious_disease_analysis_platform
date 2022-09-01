@@ -1,0 +1,385 @@
+{% comment %} 
+    与row code不同，由于前端项目引入django，其相对路径发生改变。
+    原有css, js, datas, img需要加入前缀static/
+{% endcomment %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>传染病可视化分析系统</title>
+  <link rel="stylesheet" href="static/css/index.css">
+  <script src="static/js/echarts.min.js"></script>
+  <script src="static/js/jquery.min.js"></script>
+  <script src="{% static  '/js/tagcanvas.min.js'%}"></script>
+  <script src="static/js/custom.js"></script>
+  <style>
+    .book-rank {
+        font-size: 13px;
+        margin-bottom: 5%;
+    }
+  </style>
+</head>
+<body>
+    <ul class="nav">
+    
+      <li class="drop-down">
+        <a href="#"></a>
+    
+        <ul class="drop-down-content">
+    
+          <li>
+            <a href="./home.html">自动切换</a>
+          </li>
+    
+          <li>
+            <a href="./index.html">第一屏</a>
+          </li>
+    
+          <li>
+            <a href="./graph_show.html">第二屏</a>
+          </li>
+          <li>
+            <a href="./third.html">第三屏</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  <div class="first-screen root-wrap">
+    <header>
+      <div class="gifImg">
+        <span>传染病可视化分析系统</span>
+          <span class="month-tip" id="current_date">2022年6月</span>
+      </div>
+      <div class="title_img"><img src="static/img/zhijiang.png" alt="" style="margin-top: -40px;"> </div>
+    </header>
+
+    <!-- 左边 -->
+    <div class="main clearfix">
+      <div class="aside-left fl">
+        <div class="top left-top">
+          <h3 class="selectable">新增曲线</h3>
+          <div class="con-wrap">
+           <div id="plot1" style="width: 90%;height:100%;margin: auto;"></div>
+          </div>
+          <!-- 文字大小设置成 em 和 % 都行，能够适配设备 12px = 1em = 100%-->
+          <p style="font-weight:bold;font-size:0.45em;text-align:center;margin-top:2%;font-family: 'Arial','Microsoft YaHei','黑体','宋体'">Notes: 红色代表预测曲线，预测可信度 86.7%</p>
+        </div>
+        <div class="bottom left-bottom">
+          <div class="bottom-in">
+            <h3>累计曲线</h3>
+            <div id="plot2" style="width:90%;height:76%;margin: auto;"></div>
+          <!-- 文字大小设置成 em 和 % 都行，能够适配设备 12px = 1em = 100%-->
+          <p style="font-weight:bold;font-size:0.45em;text-align:center;font-family: 'Arial','Microsoft YaHei','黑体','宋体'">Notes: 红色代表预测曲线，预测可信度 86.7%</p>
+          </div>
+          </div>        
+      </div>
+      <div class="middle-map fl">
+        <div class="map-wrap">
+          <h3 class="clearfix">
+            <dl class="fl">
+              <dt >全国累计确诊</dt>
+              <dd id="cum_confirm">853</dd>
+            </dl>
+            <dl class="fl">
+              <dt >新增确诊</dt>
+              <dd id="new_confirm">25</dd>
+            </dl> 
+            <dl class="fl">
+              <dt >累计死亡</dt>
+              <dd id="cum_death" class="unit-ren">30,340</dd>
+            </dl> 
+            <dl class="fl">
+              <dt >新增死亡</dt>
+              <dd id="new_confirm" class="unit-ren">22</dd>
+            </dl>
+          </h3>
+          <div id="main" style="width: 100%;height: 80%;margin-top: 15%;"></div>
+        </div>
+        <div class="core_function" style="width: 100%;height: 50px;margin-top: 1%;">
+          <a href="./graph_show.html">
+            <img src="./static/img/graph_show.png" alt="" style="width: 20%; margin-left: 3%;">
+          </a>
+          <a>
+            <img src="./static/img/predic.png" alt="" style="width: 20%; margin-left: 3%;">
+          </a>
+          <a>
+           <img src="./static/img/modeling.png" alt="" style="width: 20%; margin-left: 3%;">
+          </a>
+          <a>
+            <img src="./static/img/simulation.png" alt="" style="width: 20%; margin-left: 3%;">
+          </a>
+        </div>
+        </div>
+
+      <!-- 右边 -->
+      <div class="aside-right fl">
+              <!-- 右上 -->
+        <div class="pie">
+          <div class="pie1 fl">
+            <h3>疫情新闻播报</h3>
+            <ul class="con">
+              <li class="active">
+                <div class="book-rank"> 
+                  <span class="ranking fl">1&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202207/t20220704_259975.html">2021年中国疾病预防控制中心发表SCI论文情况简讯</a>
+                </div>
+              </li>
+              <li class="">
+                <div class="book-rank "> 
+                  <span class="ranking fl">2&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202206/t20220627_259866.html">中国疾控中心寄生虫病所成功举办第六届消除热带病监测</a>
+                </div>
+              </li>
+              <li class="">
+                <div class="book-rank"> 
+                  <span class="ranking fl">3&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202206/t20220627_259861.html">全国公共卫生与预防医学卫生工程学名词第二次审定会议</a>
+                </div>
+              </li>
+              <li class="">
+                <div class="book-rank"> 
+                  <span class="ranking fl">4&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202206/t20220627_259844.html">中国疾控中心与埃塞俄比亚公共卫生研究所召开线上合作交流会</a>
+                </div>
+              </li>
+              <li class="">
+                <div class="book-rank"> 
+                  <span class="ranking fl">5&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202206/t20220627_259843.html">高福主任出席“第二期免疫规划高级研修学者”研修工作启动会</a>
+                </div>
+              </li>
+              <li class="">
+                <div class="book-rank"> 
+                  <span class="ranking fl">6&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202206/t20220627_259842.html">再那吾东·玉山副主任出席中心第七期新冠肺炎日报专班轮换</a>
+                </div>
+              </li>
+              <li class="">
+                <div class="book-rank"> 
+                  <span class="ranking fl">7&nbsp;&nbsp;</span>
+                  <a href="https://www.chinacdc.cn/yw_9324/202206/t20220627_259841.html">国家疾控局孙阳副局长到中国疾控中心开展专题调研</a>
+                </div>
+              </li>
+              </ul>
+              <!-- <div id="pie1" style="width: 100%;height: 80%;"></div> -->
+          </div>
+        </div>
+        <!-- 右中 -->
+        <div class="area-rank">
+          <h3 class="selectable" style="display: block;">各省 Top 病例排行</h3>
+          <div id="plot3" style="width: 100%;height: 80%;"></div>
+          </div>
+        <!-- 右下 -->
+        <div class="trend">
+          <h3 class="selectable">各省防控政策</h3>
+          <!-- <div id="trendBar1" style="width: 100%;height: 80%;"></div> -->
+          <div style="margin: auto;">
+            <canvas id="myCanvas" style="margin: auto;display: block;"></canvas>
+            <div id="tags" style="display: none;">
+            </div>
+        </div>
+        </div> 
+      </div>  
+    </div>
+    <div class="main-bottom">
+      <span class="line1"></span>
+      <span class="line2"></span>
+      <span class="line3"></span>
+    </div>
+  </div>
+<script type="text/javascript">
+    // 获取当前日期
+    dateObj = new Date();
+    let month = dateObj.getUTCMonth() + 1; //months from 1-12
+    let day = dateObj.getUTCDate();
+    let year = dateObj.getUTCFullYear();
+
+    let newdate = year + "年" + month + "月" + day + "日";
+    $('#current_date').text(newdate)
+    // 球形云
+    window.onload = function () {
+        try {
+            var i, et = document.getElementById('tags').childNodes;
+            for (i in et) {
+                et[i].nodeName == 'A' && et[i].addEventListener('mouseover', function (e) {
+                    e.preventDefault();
+                    alert("干哈");
+                });
+            }
+            TagCanvas.Start('myCanvas', 'tags', {
+                textColour: '#15b6fc',
+                outlineColour: 'red',
+                reverse: true,
+                depth: 1.4,
+                dragControl: true,
+                decel:0.95,
+                maxSpeed: 0.05,
+                initial: [-0.2, 0],
+                zoom: 1
+            });
+        } catch (e) {}};
+    // 作为全局变量
+    province_map = {"安徽省":'Anhui', "北京市":'Beijing', "重庆市":'Chongqing', "福建省":'Fujian', "甘肃省":'Gansu', "广东省":'Guangdong', "广西壮族自治区":'Guangxi', "贵州省":'Guizhou', "海南省":'Hainan', "河北省":'Hebei', "黑龙江省":'Heilongjiang', "河南省":'Henan', "香港特别行政区":'Hong Kong', "湖北省":'Hubei', "湖南省":'Hunan', "内蒙古自治区":'Inner Mongolia', "江苏省":'Jiangsu', "江西省":'Jiangxi', "吉林省":'Jilin', "辽宁省":'Liaoning', "澳门特别行政区":'Macau', "宁夏回族自治区":'Ningxia', "青海省":'Qinghai', "陕西省":'Shaanxi', "山东省":'Shandong', "上海市":'Shanghai', "山西省":'Shanxi', "四川省":'Sichuan', "天津市":'Tianjin', "西藏自治区":'Tibet', "新疆维吾尔自治区":'Xinjiang', "云南省":'Yunnan', "浙江省":'Zhejiang', "台湾省":'Taiwan'}
+    reverse_province_map = {}
+    Object.keys(province_map).forEach(function(key){
+      reverse_province_map[province_map[key]] = key
+    })
+    // 简化省份
+    s_province_map = {"安徽省":'Anhui', "北京市":'Beijing', "重庆市":'Chongqing', "福建省":'Fujian', "甘肃省":'Gansu', "广东省":'Guangdong', "广西":'Guangxi', "贵州省":'Guizhou', "海南省":'Hainan', "河北省":'Hebei', "黑龙江省":'Heilongjiang', "河南省":'Henan', "香港":'Hong Kong', "湖北省":'Hubei', "湖南省":'Hunan', "内蒙古":'Inner Mongolia', "江苏省":'Jiangsu', "江西省":'Jiangxi', "吉林省":'Jilin', "辽宁省":'Liaoning', "澳门":'Macau', "宁夏":'Ningxia', "青海省":'Qinghai', "陕西省":'Shaanxi', "山东省":'Shandong', "上海市":'Shanghai', "山西省":'Shanxi', "四川省":'Sichuan', "天津市":'Tianjin', "西藏":'Tibet', "新疆":'Xinjiang', "云南省":'Yunnan', "浙江省":'Zhejiang', "台湾省":'Taiwan'}
+    s_reverse_province_map = {}
+    Object.keys(s_province_map).forEach(function(key){
+      s_reverse_province_map[s_province_map[key]] = key
+    })
+    
+    // 球形云文本
+    keys = Object.keys(s_province_map)
+    keys.forEach(function(element){
+      switch (element){
+        case '北京市':
+          $('#tags').append("<a href='https://xcx.beijing.gov.cn/yqzc1/index.html'>"+element+"</a>")
+          break
+        case '天津市':
+          $('#tags').append("<a href='https://www.tj.gov.cn/sy/ztzl/tjsfyyqfkzt/'"+element+"</a>")
+          break
+        case '河北省':
+          $('#tags').append("<a href='http://www.hebei.gov.cn/hebei/15067610/15068058/index.html'"+element+"</a>")
+          break
+        case '山西省':
+          $('#tags').append("<a href='http://www.shanxi.gov.cn/ztjj/yqfkzccs/sjzccs/'>"+element+"</a>")
+          break
+        case '内蒙古':
+          $('#tags').append("<a href='http://www.nmg.gov.cn/ztzl/qlfkxxgzbdfynmgzxd/yqfkzccs/sjzccs/'>"+element+"</a>")
+          break
+        case '辽宁省':
+          $('#tags').append("<a href='http://www.ln.gov.cn/qmzx/yqfkzccs/'>"+element+"</a>")
+          break
+        case '吉林省':
+          $('#tags').append("<a href='http://www.jl.gov.cn/szfzt/jlzxd/tzgg/sj/'>"+element+"</a>")
+          break
+        case '黑龙江省':
+          $('#tags').append("<a href='https://www.hlj.gov.cn/987/index1.html'>"+element+"</a>")
+          break
+        case '上海市':
+          $('#tags').append("<a href='https://www.shanghai.gov.cn/yqfkzccs/index.html'>"+element+"</a>")
+          break
+        case '江苏省':
+          $('#tags').append("<a href='https://www.jiangsu.gov.cn/col/col83409/index.html'>"+element+"</a>")
+          break
+        case '浙江省':
+          $('#tags').append("<a href='https://www.zj.gov.cn/col/col1229562192/index.html'>"+element+"</a>")
+          break
+        case '安徽省':
+          $('#tags').append("<a href='https://www.ah.gov.cn/zwyw/ztzl/fkxxgzbdgrdfyyq/yqfkzccs/sjzccs/index.html'>"+element+"</a>")
+          break
+        case '福建省':
+          $('#tags').append("<a href='http://www.fujian.gov.cn/zwgk/ztzl/yqfk/fkzc/'>"+element+"</a>")
+          break
+        case '江西省':
+          $('#tags').append("<a href='http://www.jiangxi.gov.cn/col/col61056/index.html'>"+element+"</a>")
+          break
+        case '山东省':
+          $('#tags').append("<a href='http://www.shandong.gov.cn/col/col208935/index.html'>"+element+"</a>")
+          break
+        case '河南省':
+          $('#tags').append("<a href='https://www.henan.gov.cn/zt/2021zt/yqfkzccs/sjzccs/'>"+element+"</a>")
+          break
+        case '湖北省':
+          $('#tags').append("<a href='http://www.hubei.gov.cn/zhuanti/2021zt/yqfkzccs/sjzccs/'>"+element+"</a>")
+          break
+        case '湖南省':
+          $('#tags').append("<a href='http://www.hunan.gov.cn/topic/yqfkzccs/yqfkzccs.html'>"+element+"</a>")
+          break
+        case '广东省':
+          $('#tags').append("<a href='http://www.gd.gov.cn/gdywdt/zwzt/yqfkzccs/sjzc/index.html'>"+element+"</a>")
+          break       
+        case '广西':
+          $('#tags').append("<a href='http://www.gxzf.gov.cn/zt/jd/qlkjxxgzbdgrfyyq/zcwj_28024/'>"+element+"</a>")
+          break
+        case '海南省':
+          $('#tags').append("<a href='https://www.hainan.gov.cn/hainan/zccs/list_jjdyyqfkzzz.shtml'>"+element+"</a>")
+          break
+        case '重庆市':
+          $('#tags').append("<a href='http://www.cq.gov.cn/zt/yqfk/zccs/'>"+element+"</a>")
+          break
+        case '四川省':
+          $('#tags').append("<a href='https://www.sc.gov.cn/10462/yqfkzccs/yqzccszt.shtml'>"+element+"</a>")
+          break
+        case '贵州省':
+          $('#tags').append("<a href='http://www.guizhou.gov.cn/zwgk/yqfkzccs/sjzccs/'>"+element+"</a>")
+          break
+        case '云南省':
+          $('#tags').append("<a href='http://www.yn.gov.cn/ztgg/yqfk/yqztyqfkzccs/yqztsjzccs/'>"+element+"</a>")
+          break
+        case '西藏':
+          $('#tags').append("<a href='http://www.xizang.gov.cn/xwzx_406/ztzl_416/cxzt/zjz/zcxx/zzq/index.html'>"+element+"</a>")
+          break
+        case '陕西省':
+          $('#tags').append("<a href='http://www.shaanxi.gov.cn/xw/ztzl/zxzt/yqkg/sj/'>"+element+"</a>")
+          break
+        case '甘肃省':
+          $('#tags').append("<a href='http://www.gansu.gov.cn/gsszf/c117038/yqfkcs.shtml'>"+element+"</a>")
+          break
+        case '青海省':
+          $('#tags').append("<a href='http://www.qinghai.gov.cn/xxgk/zwzt_2803/yqfk/sj/'>"+element+"</a>")
+          break
+        case '宁夏':
+          $('#tags').append("<a href='http://www.nx.gov.cn/ztsj/zt/yqfkzccs/sjzccs/'>"+element+"</a>")
+          break
+        case '新疆':
+          $('#tags').append("<a href='http://www.xinjiang.gov.cn/xinjiang/c102624/yqfk.shtml'>"+element+"</a>")
+          break
+        case '台湾省':
+          $('#tags').append("<a href='https://www.cdc.gov.tw/'>"+element+"</a>")
+          break
+        case '香港':
+          $('#tags').append("<a href='https://www.chp.gov.hk/tc/'>"+element+"</a>")
+          break
+        case '澳门':
+          $('#tags').append("<a href='https://www.ssm.gov.mo/apps1/PreventCOVID-19/ch.aspx#clg22916'>"+element+"</a>")
+          break
+      }
+    })
+
+    // 开启同步模式，获取json数据
+    $.ajaxSettings.async = false;
+    // 目前路径在index.html下,这些js都属于调用文件
+    plot_json = null
+    $.getJSON('static/datas/plot.json',function(data){
+      plot_json = data
+    })
+    $.ajaxSettings.async = true;
+    // 处理plot_json得到全国数据
+    let country_data = []
+    let date_len = plot_json['Anhui'].length
+    Object.keys(plot_json).forEach(function(element){
+      country_data.push(plot_json[element][date_len-1])
+    })
+    let new_confirm = 0
+    let cum_confirm = 0
+    let new_death = 0
+    let cum_death = 0
+    country_data.forEach(function(element){
+      new_confirm = new_confirm + element[1]
+      cum_confirm = cum_confirm + element[2]
+      new_death = new_death + element[3]
+      cum_death = cum_death + element[4]
+    })
+    console.log(country_data)
+    new_confirm = new_confirm.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ");
+    cum_confirm = cum_confirm.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ");
+    new_death = new_death.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ");
+    cum_death = cum_death.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ");
+
+    $('#new_confirm').text(new_confirm)
+    $('#cum_confirm').text(cum_confirm)
+    $('#new_death').text(new_death)
+    $('#cum_death').text(cum_death)
+
+</script>
+<!-- map.js与plot.js存在先后关系 -->
+  <script src="./static/js/map.js"></script>
+  <script src="./static/js/plot.js"></script>
+</body>
+</html>

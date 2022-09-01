@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tutorial Demo</title>
+    <script src="https://gw.alipayobjects.com/os/lib/antv/g6/4.3.11/dist/g6.min.js"></script>
+    <script src="static/js/echarts.min.js"></script>
+    <script src="static/js/jquery.min.js"></script>
+  </head>
+  <body>
+    <div style="width:100%; height:300px; margin-top:50px">
+      <div id="pie1" style='width:30%;height:100%;float:left;margin-left:3%'></div>
+      <div id="pie2" style='width:30%;height:100%;float:left;margin-left:3%'></div>
+      <div id="degree_plot" style='width:25%;height:100%;float:left;margin-left:3%'></div>
+    </div>
+    <div id="container"></div>
+    <script>
+        color_list = [
+        '#5470c6',
+        '#91cc75',
+        '#fac858',
+        '#ee6666',
+        '#8FE9FF',
+        '#87EAEF',
+        '#FFC9E3',
+        '#A7C2FF',
+        '#FFA1E3',
+        '#FFE269',
+        '#BFCFEE',
+        '#FFA0C5',
+        '#D5FF86',
+      ]
+       
+        // ================= html控件设置 =============== //
+        const graphDiv = document.getElementById('container');
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'inline-block';
+        buttonContainer.style.height = '35px';
+        buttonContainer.style.width = '100%';
+        buttonContainer.style.textAlign = 'center';
+
+        // download image 
+        const downloadButton = document.createElement('input');
+        downloadButton.type = 'button';
+        downloadButton.value = 'Download';
+        downloadButton.style.height = '25px';
+        downloadButton.style.width = '80px';
+        buttonContainer.appendChild(downloadButton);
+
+        // enable/disable the fisheye lens button
+        const swithButton = document.createElement('input');
+        swithButton.type = 'button';
+        swithButton.value = 'Enable';
+        swithButton.style.height = '25px';
+        swithButton.style.width = '60px';
+        swithButton.style.marginLeft = '16px';
+        buttonContainer.appendChild(swithButton);
+
+        buttonContainer.appendChild(document.createElement('br'));
+        
+        // cluster for the graph
+        const cluster = document.createElement('span');
+        cluster.innerHTML = 'Cluster:';
+        cluster.style.marginLeft = '16px';
+        buttonContainer.appendChild(cluster);
+        const configcluster = document.createElement('select');
+        configcluster.value = 'node';
+        configcluster.style.height = '25px';
+        configcluster.style.width = '100px';
+        configcluster.style.marginLeft = '8px';
+        const nonecluster = document.createElement('option');
+        nonecluster.value = 'none';
+        nonecluster.innerHTML = 'none';
+        configcluster.appendChild(nonecluster);
+        const mousemovecluster = document.createElement('option');
+        mousemovecluster.value = 'node';
+        mousemovecluster.innerHTML = 'node';
+        configcluster.appendChild(mousemovecluster);
+        const dragcluster = document.createElement('option');
+        dragcluster.value = 'edge';
+        dragcluster.innerHTML = 'edge';
+        configcluster.appendChild(dragcluster);
+        const clickcluster = document.createElement('option');
+        clickcluster.value = 'n&e';
+        clickcluster.innerHTML = 'n&e';
+        configcluster.appendChild(clickcluster);
+        buttonContainer.appendChild(configcluster);
+
+        {% comment %} const clusterButton = document.createElement('input');
+        clusterButton.type = 'button';
+        clusterButton.value = 'Cluster';
+        clusterButton.style.height = '25px';
+        clusterButton.style.width = '80px';
+        clusterButton.style.marginLeft = '16px';
+        buttonContainer.appendChild(clusterButton); {% endcomment %}
+
+        // layout to choose
+        const trigger = document.createElement('span');
+        trigger.innerHTML = 'Layout:';
+        trigger.style.marginLeft = '16px';
+        buttonContainer.appendChild(trigger);
+        const configTrigger = document.createElement('select');
+        configTrigger.value = 'force';
+        configTrigger.style.height = '25px';
+        configTrigger.style.width = '100px';
+        configTrigger.style.marginLeft = '8px';
+        const mousemoveTrigger = document.createElement('option');
+        mousemoveTrigger.value = 'force';
+        mousemoveTrigger.innerHTML = 'force';
+        configTrigger.appendChild(mousemoveTrigger);
+        const dragTrigger = document.createElement('option');
+        dragTrigger.value = 'random';
+        dragTrigger.innerHTML = 'random';
+        configTrigger.appendChild(dragTrigger);
+        const clickTrigger = document.createElement('option');
+        clickTrigger.value = 'concentric';
+        clickTrigger.innerHTML = 'concentric';
+        configTrigger.appendChild(clickTrigger);
+        buttonContainer.appendChild(configTrigger);
+
+        // load different data
+        const loadData = document.createElement('span');
+        loadData.innerHTML = 'Choose data :';
+        loadData.style.marginLeft = '16px';
+        buttonContainer.appendChild(loadData);
+        const configloadDataBy = document.createElement('select');
+        configloadDataBy.value = 'unset';
+        configloadDataBy.style.height = '25px';
+        configloadDataBy.style.width = '150px';
+        configloadDataBy.style.marginLeft = '8px';
+        const loadDataByUnset = document.createElement('option');
+        loadDataByUnset.value = 'graph_covid_439.json';
+        loadDataByUnset.innerHTML = 'graph_covid_439.json';
+        configloadDataBy.appendChild(loadDataByUnset);
+        const loadDataByWheel = document.createElement('option');
+        loadDataByWheel.value = 'graph_covid_973.json';
+        loadDataByWheel.innerHTML = 'graph_covid_973.json';
+        configloadDataBy.appendChild(loadDataByWheel);
+        const loadDataByDrag = document.createElement('option');
+        loadDataByDrag.value = 'graph_covid_1492.json';
+        loadDataByDrag.innerHTML = 'graph_covid_1492.json';
+        configloadDataBy.appendChild(loadDataByDrag);
+        buttonContainer.appendChild(configloadDataBy);
+
+        graphDiv.parentNode.appendChild(buttonContainer);
+        
+        downloadButton.addEventListener('click', (e) => {
+          graph.downloadFullImage('graph', 'image/png')
+        });
+        swithButton.addEventListener('click', (e) => {
+          if (swithButton.value === 'Disable') {
+            swithButton.value = 'Enable';
+            graph.removePlugin(fisheye);
+          } else {
+            swithButton.value = 'Disable';
+            fisheye = new G6.Fisheye({
+              r: 200,
+              showLabel: true,
+            });
+            graph.addPlugin(fisheye);
+          }
+        });
+
+        configcluster.addEventListener('change', (e) => {
+          choose = e.target.value
+          clusterAllStatsBack()
+          clusterAllStats(choose)
+          //graph.updateLayout(current_layout)
+          graph.render()
+        });
+        configTrigger.addEventListener('change', (e) => {
+          current_layout = e.target.value
+          clusterAllStatsBack()
+          graph.updateLayout(current_layout)
+          graph.render()
+        });
+        //数据变换，对应的echart也要重新加载
+        configloadDataBy.addEventListener('change', (e) => {
+          data_name = e.target.value
+          $.getJSON('static/datas/g6_json/' + data_name ,function(data){
+            graph.data({
+              nodes: data.nodes,
+              edges: data.edges.map(function(edge,i){
+                edge.id = 'edge' + i
+                edge['label_'] = edge.label
+                edge.label = null
+                //console.log(edge)
+                return Object.assign({},edge)
+              })
+            })
+            graph.render()
+
+            //更新 echart 需要使用的数据
+            node_label_list = graph.getNodes().map(function (node) {  
+              return node._cfg.model.labels[0] 
+            })
+            edge_label_list = graph.getEdges().map(function (node) {  
+              return node._cfg.model.label_
+            })
+
+            node_dict = new Map()
+            node_label_list.forEach(function(label){
+              if (node_dict.get(label)){
+                node_dict.set(label, node_dict.get(label) + 1)
+              }else{
+                node_dict.set(label,1)
+              }
+            })
+            edge_dict = new Map()
+            edge_label_list.forEach(function(label){
+              if (edge_dict.get(label)){
+                edge_dict.set(label, edge_dict.get(label) + 1)
+              }else{
+                edge_dict.set(label,1)
+              }
+            })
+
+            pie1_data = new Array()
+            pie1_name = new Array()
+            node_dict.forEach(function(value,key){
+              pie1_data.push({"value":value, "name":key})
+              pie1_name.push(key)
+            })
+            pie2_data = new Array()
+            pie2_name = new Array()
+            edge_dict.forEach(function(value,key){
+              pie2_data.push({"value":value, "name":key})
+              pie2_name.push(key)
+            })
+
+            let no_repeat = new Set()
+            let node_distribution = new Map()
+            graph.getNodes().forEach(function (node) {  
+              let key = node._cfg.edges.length
+              if (!no_repeat.has(key)){
+                no_repeat.add(key)
+                node_distribution.set(key,1)
+              }else{
+                node_distribution.set(key, node_distribution.get(key) + 1)
+              }
+            })
+            node_distribution = Array.from(node_distribution).sort(function(a,b){return a[0]-b[0]})
+            
+            option_pie1.series[0].data = pie1_data
+            option_pie1.legend.data = pie1_name
+            option_pie2.series[0].data = pie2_data
+            option_pie2.legend.data = pie2_name
+            option_plot.series[0].data = node_distribution
+            
+            chart_pie1.setOption(option_pie1)
+            chart_pie2.setOption(option_pie2)
+            chart_plot.setOption(option_plot)
+          })
+        });
+
+
+        // ============================ 图的配置 ============================= //
+        const container = document.getElementById('container');
+        const width = container.scrollWidth;
+        const height = container.scrollHeight || 500;
+        let current_layout = 'force'
+        const tooltip = new G6.Tooltip({
+          offsetX: 10,
+          offsetY: 10,
+          fixToNode: [1, 0.5],
+          // the types of items that allow the tooltip show up
+          // 允许出现 tooltip 的 item 类型
+          itemTypes: ['node', 'edge'],
+          // custom the tooltip's content
+          // 自定义 tooltip 内容
+          getContent: (e) => {
+            const outDiv = document.createElement('div');
+            outDiv.style.width = 'fit-content';
+            outDiv.style.height = 'fit-content';
+            const model = e.item.getModel();
+            // 查看node属性，即可使用原始，也能使用一些直接的
+            // console.log(model)
+            if (e.item.getType() === 'node') {
+              outDiv.innerHTML = `标签：${model.labels};<br/>属性：${model.name}`;
+            } else {
+              const source = e.item.getSource();
+              const target = e.item.getTarget();
+              outDiv.innerHTML = `标签：${model.label_}<br/>来源:${source.getModel().name}<br/>去向：${target.getModel().name}`;
+            }
+            return outDiv;
+          },
+        });
+        const graph = new G6.Graph({
+          container: 'container',
+          width,
+          height,
+          plugins: [tooltip,],
+          layout: {
+            type: 'force',
+            edgeStrength: 0.7,
+            preventOverlap: true
+          },
+          modes: {
+            default: ['drag-canvas','drag-node','zoom-canvas','click-select',],
+          },
+          defaultNode: {
+            size: [15, 15],
+            style: {
+              lineWidth: 2,
+              fill: '#DEE9FF',
+              stroke: '#5B8FF9',
+            },
+          },
+          defaultEdge: {
+            size: 1,
+            style: {
+              stroke: '#e2e2e2',
+              //stroke: color_list[1][0],
+              lineAppendWidth: 2,
+            },
+          },
+          nodeStateStyles: {
+            highlight: {
+              opacity: 1,
+            },
+            dark: {
+              opacity: 0.5,
+            },
+          },
+          edgeStateStyles: {
+            highlight: {
+              stroke: '#999',
+            },
+          },
+        });
+        
+        graph.on('node:mouseenter', function (e) {
+          const item = e.item;
+          graph.setAutoPaint(false);
+          graph.getNodes().forEach(function (node) {
+            graph.clearItemStates(node);
+            graph.setItemState(node, 'dark', true);
+          });
+          graph.setItemState(item, 'dark', false);
+          graph.setItemState(item, 'highlight', true);
+          graph.getEdges().forEach(function (edge) {
+            if (edge.getSource() === item) {
+              graph.setItemState(edge.getTarget(), 'dark', false);
+              graph.setItemState(edge.getTarget(), 'highlight', true);
+              graph.setItemState(edge, 'highlight', true);
+              edge.toFront();
+            } else if (edge.getTarget() === item) {
+              graph.setItemState(edge.getSource(), 'dark', false);
+              graph.setItemState(edge.getSource(), 'highlight', true);
+              graph.setItemState(edge, 'highlight', true);
+              edge.toFront();
+            } else {
+              graph.setItemState(edge, 'highlight', false);
+            }
+          });
+          graph.paint();
+          graph.setAutoPaint(true);
+        });
+        graph.on('node:mouseleave', clearAllStats);
+        graph.on('canvas:click', clearAllStats);
+
+
+        //---------------------- 数据加载 -----------------------
+        // 图数据节点以及边的内容需要适配 G6 要求
+        $.ajaxSettings.async = false
+        $.getJSON('static/datas/g6_json/graph_covid_439.json',function(data){
+          graph.data({
+            nodes: data.nodes,
+            edges: data.edges.map(function(edge,i){
+              edge.id = 'edge' + i
+              edge['label_'] = edge.label
+              edge.label = null
+              return Object.assign({},edge)
+            })
+          })
+          graph.render()
+        })
+        node_label_list = graph.getNodes().map(function (node) {  
+          return node._cfg.model.labels[0] 
+        })
+        edge_label_list = graph.getEdges().map(function (node) {  
+          return node._cfg.model.label_
+        })
+        let no_repeat = new Set()
+        let node_distribution = new Map()
+        graph.getNodes().forEach(function (node) {  
+          let key = node._cfg.edges.length
+          if (!no_repeat.has(key)){
+            no_repeat.add(key)
+            node_distribution.set(key,1)
+          }else{
+            node_distribution.set(key, node_distribution.get(key) + 1)
+          }
+        })
+        node_distribution = Array.from(node_distribution).sort(function(a,b){return a[0]-b[0]})
+
+        //----------------------- 操作函数 ---------------------------
+        function clusterAllStats(choose='node') {
+          // 获取节点的类别数组
+          no_repeat = new Set()
+          node_label_class = new Array()
+          node_label_list.forEach(function(label){
+            if (! no_repeat.has(label)){
+              no_repeat.add(label)
+              node_label_class.push(label)
+            }
+          })
+          // 获取边的类别数组
+          no_repeat = new Set()
+          edge_label_class = new Array()
+          edge_label_list.forEach(function(label){
+            if (! no_repeat.has(label)){
+              no_repeat.add(label)
+              edge_label_class.push(label)
+            }
+          })
+          if(choose == 'node'){
+            graph.getNodes().forEach(function (node) {
+              label = node._cfg.model.labels[0]
+              if (node_label_class.indexOf(label) != -1){
+                  index = node_label_class.indexOf(label)
+                  node._cfg.model.style.fill = color_list[index]
+                }
+            });
+          }
+          else if(choose == 'edge'){
+            graph.getEdges().forEach(function (edge) {
+              label = edge._cfg.model.label_
+              if (edge_label_class.indexOf(label) != -1){
+                index = edge_label_class.indexOf(label)
+                edge._cfg.model.style.stroke = color_list[color_list.length-1-index]
+              }
+            });
+          }else if(choose == 'n&e'){
+            //节点有 4 类,边之间的关系有 8 类
+            graph.getNodes().forEach(function (node) {
+              label = node._cfg.model.labels[0]
+              if (node_label_class.indexOf(label) != -1){
+                  index = node_label_class.indexOf(label)
+                  node._cfg.model.style.fill = color_list[index]
+                }
+            });
+            graph.getEdges().forEach(function (edge) {
+              label = edge._cfg.model.label_
+              if (edge_label_class.indexOf(label) != -1){
+                index = edge_label_class.indexOf(label)
+                edge._cfg.model.style.stroke = color_list[color_list.length-1-index]
+              }
+            });
+            }
+        }
+        function clusterAllStatsBack(){
+          graph.getNodes().forEach(function (node) {
+            node._cfg.model.style.fill = '#DEE9FF'
+            node._cfg.model.style.stroke = '#5B8FF9'
+          });
+          graph.getEdges().forEach(function (edge) {
+            edge._cfg.model.style.stroke = '#e2e2e2'
+          });
+        }
+        function clearAllStats() {
+          graph.setAutoPaint(false);
+          graph.getNodes().forEach(function (node) {
+            graph.clearItemStates(node);
+          });
+          graph.getEdges().forEach(function (edge) {
+            graph.clearItemStates(edge);
+          });
+          graph.paint();
+          graph.setAutoPaint(true);
+        }
+    </script>
+    <script>
+          // 由于echart配置基于原始的数据，因此需要等其加载完成
+          //--------------------------- echart配置 -----------------------------
+      node_dict = new Map()
+      node_label_list.forEach(function(label){
+        if (node_dict.get(label)){
+          node_dict.set(label, node_dict.get(label) + 1)
+        }else{
+          node_dict.set(label,1)
+        }
+      })
+      edge_dict = new Map()
+      edge_label_list.forEach(function(label){
+        if (edge_dict.get(label)){
+          edge_dict.set(label, edge_dict.get(label) + 1)
+        }else{
+          edge_dict.set(label,1)
+        }
+      })
+
+      pie1_data = new Array()
+      pie1_name = new Array()
+      node_dict.forEach(function(value,key){
+        pie1_data.push({"value":value, "name":key})
+        pie1_name.push(key)
+      })
+      pie2_data = new Array()
+      pie2_name = new Array()
+      edge_dict.forEach(function(value,key){
+        pie2_data.push({"value":value, "name":key})
+        pie2_name.push(key)
+      })
+
+      pie1 = document.getElementById('pie1')
+      let chart_pie1 = echarts.init(pie1);
+      let option_pie1;
+      option_pie1 = {
+        animationDuration: 1500,
+        title: {
+          text: '节点聚类',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          left: 'center',
+          bottom: '10%',
+          data: pie1_name,
+          //padding: [5,120]
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            restore: { show: true },
+            saveAsImage: { show: true }
+          }
+        },
+        series: [
+          {
+            name: '数量/比例',
+            type: 'pie',
+            radius: [15, 100],
+            center: ['50%', '50%'],
+            roseType: 'area',
+            itemStyle: {
+              borderRadius: 5
+            },
+            data: pie1_data
+          }
+        ]
+      };
+      option_pie1 && chart_pie1.setOption(option_pie1);
+
+      pie2 = document.getElementById('pie2')
+      let chart_pie2 = echarts.init(pie2);
+      let option_pie2;
+      option_pie2 = {
+        animationDuration: 1500,
+        title: {
+          text: '边的聚类',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          left: 'center',
+          top: 'bottom',
+          data: pie2_name,
+          padding:[5,50]
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            restore: { show: true },
+            saveAsImage: { show: true }
+          }
+        },
+        series: [
+          {
+            name: '数量/比例',
+            type: 'pie',
+            radius: [15, 80],
+            center: ['50%', '50%'],
+            roseType: 'area',
+            itemStyle: {
+              borderRadius: 5
+            },
+            data: pie2_data
+          }
+        ]
+      };
+      option_pie2 && chart_pie2.setOption(option_pie2);
+
+      degree_plot = document.getElementById('degree_plot')
+      var chart_plot = echarts.init(degree_plot);
+      var option_plot;
+      option_plot = {
+        animationDuration: 1500,
+        title:{
+          text: "节点的度分布",
+          left:'center'
+        },
+        tooltip: {
+          trigger: 'axis',
+          formatter: function (element) {
+            value = element[0].value[1]
+            return "<span style=\"display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#5470c6;\"></span>&nbsp" + value
+          }, 
+           axisPointer: {
+             type: 'shadow',
+           }
+        },
+        grid: {
+          top:'15%',
+          left: '3%',
+          right: '4%',
+          bottom: '15%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'value',
+          name: '节点的度',
+          nameLocation:'middle',
+          splitNumber:10,
+          nameTextStyle: {
+            padding: [8,0,0,0]
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: '数量/个'
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            restore: { show: true },
+            saveAsImage: { show: true }
+          }
+        },
+        series: [
+          {
+            data: node_distribution,
+            type: 'line',
+            smooth: true
+          }
+        ]
+      };
+      option_plot && chart_plot.setOption(option_plot);
+
+    </script>
+  </body>
+</html>

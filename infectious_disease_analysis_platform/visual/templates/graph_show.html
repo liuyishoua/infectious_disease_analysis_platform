@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>图的社区挖掘</title>
+
+    <link rel="stylesheet" href="static/css/graph_show.css">
+    <link rel="stylesheet" href="static/fonts/icomoon.css">
+    <script src="static/js/g6.min.js"></script>    
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/echarts.min.js"></script>
+    <script src="static/js/custom.js"></script>
+</head>
+
+<body>
+  <button id="mode_change" class="custom-btn btn-15" style="position:absolute;left: 40.5%;top: 3%;text-align: center;width: 20%;height:5%;color: #e9dbdb;font-size: 1.75em;font-family: 'Microsoft YaHei', Courier, monospace;cursor: auto;">基础分类</button>
+  <img id="left_arrow" src="static/img/left.svg" height="4%" width="8%" alt="左箭头" style="cursor: pointer;position: absolute;top: 3.75%;left: 38%;z-index: 2;">
+  <img id="right_arrow" src="static/img/right.svg" height="4%" width="8%" alt="左箭头" style="cursor: pointer;position: absolute;top: 3.75%;left: 55%;z-index: 2;">
+    <div class="viewport">
+        <!-- 左边 -->
+        <div class="column">
+            <div class="overview panel">
+                <div class="inner" id="graph_info">
+                    <div class="item">
+                        <h4></h4>
+                        <span>
+                            <i class="icon-dot" style="color: #006cff"></i>
+                            总节点数
+                        </span>
+                    </div>
+                    <div class="item">
+                        <h4></h4>
+                        <span>
+                            <i class="icon-dot" style="color: #6acca3"></i>
+                            边的数量
+                        </span>
+                    </div>
+                    <div class="item">
+                        <h4>暂无</h4>
+                        <span>
+                            <i class="icon-dot" style="color: #6acca3"></i>
+                            节点标签
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!--监控当前节点-->
+            <div class="monitor panel">
+                <div class="inner">
+                    <div class="tabs">
+                        <a href="javascript:;" data-index="0" class="active">相邻节点信息</a>
+                        <a href="javascript:;" data-index="1">相邻边信息</a>
+                        <a id="near_number" style="color:beige;">暂无</a>
+                    </div>
+                    <div class="content" style="display: block;">
+                        <div class="head">
+                            <span class="col">唯一标识符</span>
+                            <span class="col">节点名</span>
+                            <span class="col">节点标签</span>
+                        </div>
+                        <div class="marquee-view">
+                            <div class="marquee">
+                                <div class="row">
+                                    <span class="col">暂无</span>
+                                    <span class="col">暂无</span>
+                                    <span class="col">暂无</span>
+                                    <span class="icon-dot"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="head">
+                            <span class="col">唯一标识符</span>
+                            <span class="col">边的两端</span>
+                            <span class="col">边的标签</span>
+                        </div>
+                        <div class="marquee-view">
+                            <div class="marquee">
+                              <div class="row">
+                                <span class="col">暂无</span>
+                                <span class="col">暂无</span>
+                                <span class="col">暂无</span>
+                                <span class="icon-dot"></span>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--边的聚类-->
+            <div class="point panel">
+                <div class="inner">
+                    <h3>边的类别</h3>
+                    <div id="pie2" style='width:100%;height:100%;float:left;margin-left:3%'></div>
+                </div>
+            </div>
+        </div>
+        <!-- 中间 -->
+        <div class="column">
+            <!-- 中间大图 -->
+            <div class="map" id="container" style="z-index: 100;">
+                <h3 style="z-index: 99;">
+                    <span class="icon-cube"></span>
+                    <div id="mode_text" style="display:inline">新冠数据的图展示及聚类</div>
+                </h3>
+              <div id="minimap" style="width:200px;height:200px;position:absolute;bottom:25%;right:0">
+              </div>
+            </div>
+            <!-- 节点的度分布 -->
+            <div class="users panel">
+                <div class="inner">
+                    <h3 id="text_change">节点度的分布</h3>
+                    <div id="degree_plot" style='width:100%;height:100%;float:left;margin-left:3%;'></div>
+                    <div id="subgraph_search" style='width:100%;height:100%;margin-left:3%;display: none;'></div>
+                </div>
+            </div>
+        </div>
+        <!-- 右边 -->
+        <div class="column">
+            <!-- 饼图 -->
+            <div class="wrap">
+                <div class="channel panel">
+                    <div class="inner">
+                        <h3>按钮操作</h3>
+                        <div class="data">
+                            <div class="item" style="text-align: center;">
+                                <button id="download_button" type="button" class="custom-btn btn-9">Download</button>
+                                <span style="margin-top: 4%;">
+                                    <i class="icon-plane"></i>
+                                    下载
+                                </span>
+                            </div>
+                        </div>
+                        <div class="data">
+                            <div class="item" style="text-align: center;">
+                              <button id="enable_button" class="custom-btn btn-6">Enable</button>
+                                <span style="margin-top: 4%;">
+                                    <i class="icon-train"></i>
+                                    放大镜
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quarter panel" style="z-index: 1000;">
+                    <div class="inner">
+                      <h3>选择操作</h3>
+                        <div class="chart">
+                            <div class="box">
+                                <div style="width: 100%;height:28%;margin-top: 3%; text-align: center;">
+                                  <select id="classfication_select" class="custom-btn btn-3" style="color: rgb(19, 19, 19);" id="cluster_select">
+                                    <option value="none" style="color: #000;">基础分类</option>
+                                    <option value="reset" style="color: #000;">大图重置</option>
+                                    <option value="node" style="color: #000;">点分类</option>
+                                    <option value="edge" style="color: #000;">边分类</option>
+                                  </select>
+                                  <select id="cluster_select" class="custom-btn btn-3" style="background: linear-gradient(0deg, rgba(0,172,238,1) 0%, rgba(2,126,251,1) 100%);display:none;color: rgb(19, 19, 19);">
+                                      <option value="none" style="color: #000;">社区挖掘</option>
+                                      <option value="reset" style="color: #000;">大图重置</option>
+                                      <option value="n&e" style="color: #000;">社区挖掘</option>
+                                  </select>
+                                  <select id="search_select" class="custom-btn btn-3" style="background: linear-gradient(0deg, rgba(0,172,238,1) 20%, rgba(2,126,251,1) 50%);display:none;color: rgb(19, 19, 19);" id="cluster_select">
+                                    <option value="none" style="color: #000;">子图查找</option>
+                                    <option value="reset" style="color: #000;">大图重置</option>
+                                    <option value="n&e" style="color: #000;">子图搜索</option>
+                                </select>
+                                </div>
+                                <div style="width: 100%;height:28%;margin-top: 5%;text-align: center;">
+                                  <select class="custom-btn btn-13" style="color: rgb(12, 12, 12);" id="layout_select">
+                                    <option value="none" style="color: #000;">布局变换</option>
+                                    <option value="force" style="color: #000;">力导向</option>
+                                    <option value="random" style="color: #000;">随机</option>
+                                    <option value="concentric" style="color: #000;">同心圆</option>
+                                </select>
+                                </div>
+                                <div style="width: 100%;height:28%;margin-top: 5%;text-align: center;">
+                                  <select class="custom-btn btn-14" style="display: inline;color: rgb(0, 0, 0);" id="data_select">
+                                    <option value="none" style="color: #000;">更换数据</option>
+                                    <option value="graph_covid_439.json" style="color: #000;">covid_439</option>
+                                    <option value="graph_covid_973.json" style="color: #000;">covid_973</option>
+                                    <option value="graph_covid_1492.json" style="color: #000;">covid_1492</option>
+                                  </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 相应措施 -->
+            <div class="top panel">
+                <div class="inner">
+                    <div class="all">
+                        <h3>Top 社区</h3>
+                        <ul>
+                            <li>
+                                <i class="icon-cup1" style="color: #d93f36;"></i>
+                                最大团
+                            </li>
+                            <li>
+                                <i class="icon-cup2" style="color: #68d8fe;"></i>
+                                次大团
+                            </li>
+                            <li>
+                                <i class="icon-cup3" style="color: #4c9bfd;"></i>
+                                最小团
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="province">
+                        <h3>建议措施 <i class="date">// 近30日 //</i></h3>
+                        <div class="data">
+                            <ul class="sup">
+                                <li>
+                                    <span>建议：一级措施</span>
+                                    <span>25,179 <s class="icon-up"></s></span>
+                                </li>
+                                <li>
+                                    <span>建议：一级措施</span>
+                                    <span>23,252 <s class="icon-down"></s></span>
+                                </li>
+                                <li>
+                                    <span>建议：一级措施</span>
+                                    <span>20,760 <s class="icon-up"></s></span>
+                                </li>
+                                <li>
+                                    <span>建议：一级措施</span>
+                                    <span>23,252 <s class="icon-down"></s></span>
+                                </li>
+                                <li>
+                                    <span>建议：一级措施</span>
+                                    <span>20,760 <s class="icon-up"></s></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 节点的度 -->
+            <div class="sales panel">
+              <div class="inner">
+                  <div class="caption">
+                      <h3>节点类别</h3>
+                  </div>
+                  <div id="pie1" style='width:100%;height:100%;float:left;margin-left:3%'></div>
+                </div>
+          </div>
+        </div>
+    </div>
+
+</body>
+<script>
+  // 一些页面之类的基础操作
+  (function () {
+    // 1、页面一加载就要知道页面宽度计算
+    var setFont = function () {
+        // 因为要定义变量可能和别的变量相互冲突，污染，所有用自调用函数
+        var html = document.documentElement;// 获取html
+        // 获取宽度
+        var width = html.clientWidth;
+
+        // 判断
+        if (width < 1024) width = 1024
+        if (width > 1920) width = 1920
+        // 设置html的基准值
+        var fontSize = width / 80 + 'px';
+        // 设置给html
+        html.style.fontSize = fontSize;
+    }
+    setFont();
+    // 2、页面改变的时候也需要设置
+    // 尺寸改变事件
+    window.onresize = function () {
+        setFont();
+    }
+})();
+
+(function () {
+    //事件委托
+    $('.monitor').on('click', ' a', function () {
+        if ($(this).index() != 2){
+            //点击当前的a 加类名 active  他的兄弟删除类名
+            $(this).addClass('active').siblings().removeClass('active');
+            //获取一一对应的下标 
+            var index = $(this).index();
+            //选取content 然后狗日对应下标的 显示   当前的兄弟.content隐藏
+            $('.content').eq(index).show().siblings('.content').hide();
+        }
+    });
+
+})();
+document.getElementsByClassName("viewport")[0].style.setProperty("height",window.screen.availHeight+'.px')
+</script>
+
+<script>   
+  color_list = [
+    '#5470c6',
+    '#91cc75',
+    '#fac858',
+    '#ee6666',
+    '#8FE9FF',
+    '#87EAEF',
+    '#FFC9E3',
+    '#A7C2FF',
+    '#FFA1E3',
+    '#FFE269',
+    '#BFCFEE',
+    '#FFA0C5',
+    '#D5FF86',
+  ]
+
+    // ============================ 图的配置 ============================= //
+    const container = document.getElementById('container');
+    const width = container.scrollWidth;
+    const height = container.scrollHeight;
+    let current_layout = 'force'
+    const tooltip = new G6.Tooltip({
+      offsetX: 10,
+      offsetY: 10,
+      fixToNode: [1, 0.5],
+      // the types of items that allow the tooltip show up
+      // 允许出现 tooltip 的 item 类型
+      itemTypes: ['node', 'edge'],
+      // custom the tooltip's content
+      // 自定义 tooltip 内容
+      getContent: (e) => {
+        const outDiv = document.createElement('div');
+        outDiv.style.width = 'fit-content';
+        outDiv.style.height = 'fit-content';
+        const model = e.item.getModel();
+        if (e.item.getType() === 'node') {
+          outDiv.innerHTML = `标签：${model.labels[0].replace("_439","")};<br/>节点ID：${model.id}<br/>属性：${model.name}`;
+        } else {
+          const source = e.item.getSource();
+          const target = e.item.getTarget();
+          outDiv.innerHTML = `标签: ${model.label_.replace("_439","")}<br/>边ID：${model.id}<br/>来源标签: ${source.getModel().labels[0].replace("_439","")}; &nbsp &nbsp来源: ${source.getModel().name}<br/>去向标签: ${target.getModel().labels[0].replace("_439","")}; &nbsp &nbsp去向: ${target.getModel().name}`;
+        }
+        return outDiv;
+      },
+    });
+    const minimap = new G6.Minimap({
+      container: "minimap",
+    });
+    const graph = new G6.Graph({
+      container: 'container',
+      width,
+      height,
+      minZoom: 0.02,
+      maxZoom: 20,
+      plugins: [tooltip,minimap],
+      layout: {
+        type: 'force',
+        edgeStrength: 0.1,
+        preventOverlap: true,
+        nodeSpacing:2
+      },
+      modes: {
+        default: ['drag-canvas','drag-node','zoom-canvas','click-select',],
+      },
+      defaultNode: {
+        size: [20, 20],
+        style: {
+          lineWidth: 1,
+          // fill: '#DEE9FF',
+          fill: color_list[5],
+          stroke: '#5B8FF9',
+        },
+      },
+      defaultEdge: {
+        size: 1,
+        style: {
+          // stroke: '#e2e2e2',
+          stroke: color_list[10],
+          lineAppendWidth: 1,
+        },
+      },
+      nodeStateStyles: {
+        highlight: {
+          opacity: 1,
+        },
+        dark: {
+          opacity: 0.2,
+        },
+      },
+      edgeStateStyles: {
+        highlight: {
+          stroke: '#999',
+        },
+      },
+      animation:true
+    });
+    
+    graph.on('node:mouseenter', function (e) {
+      const item = e.item;
+      search_select = document.getElementById("search_select")
+      if (search_select.value != "n&e"){
+        graph.setAutoPaint(false);
+        graph.getNodes().forEach(node => {
+            graph.setItemState(node, 'highlight', false);
+            graph.setItemState(node, 'dark', true);
+        })
+        // 自适应，相邻节点调暗
+        graph.setItemState(item, 'dark', false);
+        graph.setItemState(item, 'highlight', true);
+        graph.getEdges().forEach(function (edge) {
+          if (edge.getSource() === item) {
+            graph.setItemState(edge.getTarget(), 'dark', false);
+            graph.setItemState(edge.getTarget(), 'highlight', true);
+            graph.setItemState(edge, 'highlight', true);
+            edge.toFront();
+          } else if (edge.getTarget() === item) {
+            graph.setItemState(edge.getSource(), 'dark', false);
+            graph.setItemState(edge.getSource(), 'highlight', true);
+            graph.setItemState(edge, 'highlight', true);
+            edge.toFront();
+          } else {
+            graph.setItemState(edge, 'highlight', false);  
+          }
+        });
+        graph.paint();
+        graph.setAutoPaint(true);
+      }
+
+
+      // 更新当前点的信息
+      node_label = item._cfg.model.labels[0].replace('_439','')
+      document.getElementById("graph_info").getElementsByClassName("item")[2].getElementsByTagName('h4')[0].innerHTML = node_label
+      
+      let near_number = 0 
+      near_node = document.getElementsByClassName("marquee")[0]
+      let str = ""
+      // console.log(item._cfg.edges)
+      item._cfg.edges.forEach(function(edge){
+        node = item._cfg.model.id == edge._cfg.model.source ? graph.findById(edge._cfg.model.target) : graph.findById(edge._cfg.model.source)         
+        id = node._cfg.model.id
+        label = node._cfg.model.labels[0].replace("_439","")
+        name = node._cfg.model.name
+        str = str + "<div class=\"row\"\><span class=\"col\">" + id
+        str = str + "</span\><span class=\"col\">" + name
+        str = str + "</span\><span class=\"col\">" + label +"</span\><span class=\"icon-dot\"></span\></div\>"
+        near_number = near_number + 1
+        })
+      near_node.innerHTML = str
+
+      near_edge = document.getElementsByClassName("marquee")[1]
+      str = ""
+      item._cfg.edges.forEach(function(edge){
+        id = edge._cfg.model.id
+        label = edge._cfg.model.label_.replace("_439","")
+        source_label = edge._cfg.model.source_label[0].replace("_439","")
+        source_id = edge._cfg.model.source
+        target_label = edge._cfg.model.target_label[0].replace("_439","")
+        target_id = edge._cfg.model.target
+        name = source_label + ": " + source_id + "-->" + target_label + ": " + target_id
+        str = str + "<div class=\"row\"\><span class=\"col\">" + id
+        str = str + "</span\><span class=\"col\">" + name
+        str = str + "</span\><span class=\"col\">" + label +"</span\><span class=\"icon-dot\"></span\></div\>"
+        })
+      near_edge.innerHTML = str
+
+      // 滚动速度自适应
+      elements = document.getElementsByClassName("marquee")
+      if (near_number >= 6){
+        for (let i=0 ;i < elements.length;i++){
+          elements[i].style.setProperty("animation","row " + near_number + "s linear infinite")
+          elements[i].onmouseover = function(){
+            this.style.setProperty("animation-play-state","paused")
+          }
+          elements[i].onmouseleave = function(){
+            this.style.setProperty("animation-play-state","running")
+          }
+        }   
+      }else{
+        for (let i=0 ;i < elements.length;i++){
+          elements[i].style.setProperty("animation","")
+        }
+      }
+      document.getElementById("near_number").innerHTML = near_number
+    });
+    graph.on('node:mouseleave', e => {
+      search_select = document.getElementById("search_select")
+      if (search_select.value != "n&e"){
+        clearAllStats()
+      }
+    });
+    graph.on('canvas:click', clearAllStats);
+
+    //---------------------- 数据加载 -----------------------
+    // 图数据节点以及边的内容需要适配 G6 要求
+    $.ajaxSettings.async = false
+    $.getJSON('static/datas/g6_json/graph_covid_439.json',function(data){
+      graph.data({
+        nodes: data.nodes,
+        edges: data.edges.map(function(edge,i){
+          //edge.id = 'edge' + i
+          edge['label_'] = edge.label
+          // 不设置为空，就全会显示出来，密密麻麻
+          edge.label = null
+          return Object.assign({},edge)
+        })
+      })
+      graph.render()
+      // 写入图的全局消息
+      document.getElementById("graph_info").getElementsByClassName("item")[0].getElementsByTagName('h4')[0].innerHTML = graph.getNodes().length
+      document.getElementById("graph_info").getElementsByClassName("item")[1].getElementsByTagName('h4')[0].innerHTML = graph.getEdges().length
+    })
+
+    //----------------------- 操作函数 ---------------------------
+    function clusterAllStats(choose='node') {
+      if(choose == 'node'){
+        graph.getNodes().forEach(function (node) {
+          label = node._cfg.model.labels[0].replace("_439","")
+          if (node_label_class.indexOf(label) != -1){
+              index = node_label_class.indexOf(label)
+              node._cfg.model.style.fill = color_list[index]
+            }
+        });
+      }
+      else if(choose == 'edge'){
+        graph.getEdges().forEach(function (edge) {
+          label = edge._cfg.model.label_.replace("_439","")
+          if (edge_label_class.indexOf(label) != -1){
+            index = edge_label_class.indexOf(label)
+            edge._cfg.model.style.stroke = color_list[color_list.length-1-index]
+          }
+        });
+      }else if(choose == 'n&e'){
+        //节点有 4 类,边之间的关系有 8 类
+        graph.getNodes().forEach(function (node) {
+          label = node._cfg.model.labels[0].replace("_439","")
+          if (node_label_class.indexOf(label) != -1){
+              index = node_label_class.indexOf(label)
+              node._cfg.model.style.fill = color_list[index]
+            }
+        });
+        graph.getEdges().forEach(function (edge) {
+          label = edge._cfg.model.label_.replace("_439","")
+          if (edge_label_class.indexOf(label) != -1){
+            index = edge_label_class.indexOf(label)
+            edge._cfg.model.style.stroke = color_list[color_list.length-1-index]
+          }
+        });
+        }
+    }
+    function clusterAllStatsBack(){
+      graph.getNodes().forEach(function (node) {
+        node._cfg.model.style.fill = color_list[5]
+        node._cfg.model.style.stroke = '#5B8FF9'
+      });
+      graph.getEdges().forEach(function (edge) {
+        edge._cfg.model.style.stroke = color_list[10]
+      });
+    }
+    function resetGraph(){
+      graph.setAutoPaint(false);
+      graph.getNodes().forEach(function(element){
+        element._cfg.model.style.fill = color_list[5]
+        element._cfg.model.style.size = (20,20)
+        graph.clearItemStates(element);
+      })
+      graph.getEdges().forEach(function(element){
+        element._cfg.model.style.stroke = color_list[10]
+        element._cfg.model.style.lineWidth = 1
+        graph.clearItemStates(element);
+      })
+      graph.paint();
+      graph.setAutoPaint(true);
+    }
+    function searchAllStats(choose="reset",node_id_list){
+      let node_id_set = new Set()
+      node_id_list.forEach(function(group){
+        group.forEach(function(element){
+          node_id_set.add(element)
+        })
+      })
+      let node_element_list = new Array()
+      let edge_element_list = new Array()
+
+      if (choose == "reset"){
+        graph.getNodes().forEach(function(element){
+            element._cfg.model.style.fill = color_list[5]
+            element._cfg.model.style.size = (20,20)
+        })
+        graph.getEdges().forEach(function(element){
+          if (node_id_set.has(parseInt(element._cfg.model.source)) && node_id_set.has(parseInt(element._cfg.model.target))){
+            element._cfg.model.style.stroke = color_list[10]
+            element._cfg.model.style.lineWidth = 2
+          }
+        })
+        graph.render()
+      }
+      else if(choose == 'n&e'){
+        // 该改变不同三角形的颜色
+        graph.getNodes().forEach(function(element){
+          if (node_id_set.has(parseInt(element._cfg.model.id))){
+              color_index = node_label_class.indexOf(element._cfg.model.labels[0].replace("_439",""))
+              element._cfg.model.style.fill = color_list[color_index]
+              element._cfg.model.style.size = (30,30)
+          }
+        })
+        graph.getEdges().forEach(function(element){
+          if (node_id_set.has(parseInt(element._cfg.model.source)) && node_id_set.has(parseInt(element._cfg.model.target))){
+            color_index = edge_label_class.indexOf(element._cfg.model.label_.replace("_439",""))
+              element._cfg.model.style.stroke = color_list[color_index]
+              element._cfg.model.style.lineWidth = 5
+          }
+        })
+        graph.render()
+
+        graph.setAutoPaint(false);
+        graph.getNodes().forEach(function(element){
+          if (!node_id_set.has(parseInt(element._cfg.model.id))){
+            graph.setItemState(element, 'dark', true);
+            graph.setItemState(element, 'highlight', false);
+          }
+        })
+        graph.paint()
+        graph.setAutoPaint(true);
+      }
+    }
+    function clearAllStats() {
+      graph.setAutoPaint(false);
+      graph.getNodes().forEach(function (node) {
+        graph.clearItemStates(node);
+      });
+      graph.getEdges().forEach(function (edge) {
+        graph.clearItemStates(edge);
+      });
+      graph.paint();
+      graph.setAutoPaint(true);
+    }
+</script>
+
+<script>
+  //---------------------- 通用的全局变量 -----------------------
+  let node_label_list = null
+  let edge_label_list = null
+  let node_dict = new Map()
+  let edge_dict = new Map()
+  let node_label_class = new Array()
+  let edge_label_class = new Array()
+  function global_keep(){
+    node_label_list = graph.getNodes().map(function (node) {  
+      return node._cfg.model.labels[0].replace("_439","")
+    })
+    edge_label_list = graph.getEdges().map(function (node) {  
+      return node._cfg.model.label_.replace("_439","")
+    })
+    node_dict = new Map()
+    edge_dict = new Map()
+    node_label_list.forEach(function(label){
+      if (node_dict.get(label)){
+        node_dict.set(label, node_dict.get(label) + 1)
+      }else{
+        node_dict.set(label,1)
+      }
+    })
+    edge_label_list.forEach(function(label){
+      if (edge_dict.get(label)){
+        edge_dict.set(label, edge_dict.get(label) + 1)
+      }else{
+        edge_dict.set(label,1)
+      }
+    })
+    node_label_class = new Array()
+    edge_label_class = new Array()
+    node_dict.forEach((value,key) => {
+      node_label_class.push(key)              
+    })
+    edge_dict.forEach((value,key) => {
+      edge_label_class.push(key)              
+    })
+  }
+  global_keep()
+
+  //---------------------- echart所需变量 -----------------------
+  let pie1_data = new Array()
+  let pie1_name = new Array()
+  let pie2_data = new Array()
+  let pie2_name = new Array()
+  let node_distribution = new Map()
+  function echart_data_keep(){
+    pie1_data = new Array()
+    pie1_name = new Array()
+    node_dict.forEach(function(value,key){
+      pie1_data.push({"value":value, "name":key})
+      pie1_name.push(key)
+    })
+    pie2_data = new Array()
+    pie2_name = new Array()
+    edge_dict.forEach(function(value,key){
+      pie2_data.push({"value":value, "name":key})
+      pie2_name.push(key)
+    })
+
+    // 节点分布数据
+    let no_repeat = new Set()
+    node_distribution = new Map()
+    graph.getNodes().forEach(function (node) {  
+      let key = node._cfg.edges.length
+      if (!no_repeat.has(key)){
+        no_repeat.add(key)
+        node_distribution.set(key,1)
+      }else{
+        node_distribution.set(key, node_distribution.get(key) + 1)
+      }
+    })
+    node_distribution = Array.from(node_distribution).sort(function(a,b){return a[0]-b[0]})
+  }
+  echart_data_keep()
+</script>
+
+
+<script>
+  // ================= 操作台控制 =============== //
+  downloadButton = document.getElementById("download_button")
+  swithButton = document.getElementById("enable_button")
+  configcluster = document.getElementById("cluster_select")
+  configTrigger = document.getElementById("layout_select")
+  configloadDataBy = document.getElementById("data_select")
+  search_select = document.getElementById("search_select")
+  classfication_select = document.getElementById("classfication_select")
+  downloadButton.addEventListener('click', (e) => {
+    graph.downloadFullImage('graph', 'image/png')
+    if (search_select.style.display != "none"){
+      subgraph.downloadFullImage('sub_graph', 'image/png')
+    }
+  });
+  swithButton.addEventListener('click', (e) => {
+    if (swithButton.value === 'Disable') {
+      swithButton.value = 'Enable';
+      swithButton.innerHTML = 'Enable';
+      graph.removePlugin(fisheye);
+    } else {
+      swithButton.value = 'Disable';
+      swithButton.innerHTML = 'Disable';
+      fisheye = new G6.Fisheye({
+        r: 200,
+        showLabel: true,
+      });
+      graph.addPlugin(fisheye);
+    }
+  });
+  classfication_select.addEventListener('change',(e) =>{
+    choose = e.target.value
+    if (choose != "none"){
+      clusterAllStatsBack()
+      clusterAllStats(choose)
+      graph.render()
+    }
+  })
+  configcluster.addEventListener('change', (e) => {
+    choose = e.target.value
+    if (choose != "none"){
+      clusterAllStatsBack()
+      clusterAllStats(choose)
+      graph.render()
+    }
+  });
+  search_select.addEventListener("change",(e) => {
+    choose = e.target.value
+    if (choose != "none"){
+      clusterAllStatsBack()
+      // node_id_list = [[62,59,60],[272,273,60],[274,275,276],[30,385,386]]
+      // node_id_list 作为全局变量，根据加载的数据不同进行变换
+      searchAllStats(choose,node_id_list)
+    }
+  })
+  configTrigger.addEventListener('change', (e) => {
+    current_layout = e.target.value
+    if (current_layout != "none"){
+      clusterAllStatsBack()
+      graph.updateLayout(current_layout)
+      graph.cfg.animate = true
+      graph.render()
+    }
+  });
+  //数据变换，对应的echart也要重新加载
+  configloadDataBy.addEventListener('change', (e) => {
+    data_name = e.target.value
+    $.getJSON('static/datas/g6_json/' + data_name ,function(data){
+      graph.data({
+        nodes: data.nodes,
+        edges: data.edges.map(function(edge,i){
+          edge.id = 'edge' + i
+          edge['label_'] = edge.label
+          edge.label = null
+          //console.log(edge)
+          return Object.assign({},edge)
+        })
+      })
+      if (data.nodes.length < 500){
+        graph.cfg.defaultNode.size = (20,20)
+      }else if(data.nodes.length < 1000){
+        graph.cfg.defaultNode.size = (15,15)
+      }
+      else if(data.nodes.length < 2000){
+        graph.cfg.defaultNode.size = (10,10)
+      }else{
+        graph.cfg.defaultNode.size = (5,5)
+      }
+      graph.render()
+      
+      // 更新图的全局消息
+      document.getElementById("graph_info").getElementsByClassName("item")[0].getElementsByTagName('h4')[0].innerHTML = graph.getNodes().length
+      document.getElementById("graph_info").getElementsByClassName("item")[1].getElementsByTagName('h4')[0].innerHTML = graph.getEdges().length
+
+      //更新 echart 需要使用的数据
+      //跟换数据，全局变量信息改变,echart数据改变
+      global_keep()
+      echart_data_keep()
+
+      option_pie1.series[0].data = pie1_data
+      option_pie1.legend.data = pie1_name
+      option_pie2.series[0].data = pie2_data
+      option_pie2.legend.data = pie2_name
+      option_plot.series[0].data = node_distribution
+      
+      chart_pie1.setOption(option_pie1)
+      chart_pie2.setOption(option_pie2)
+      chart_plot.setOption(option_plot)
+
+      // 更新查找子图数据
+      if (data_name == "graph_covid_439.json"){
+        node_id_list = [[62,59,60],[272,273,60],[274,275,276],[30,385,386]]
+        subgraph_plot(node_id_list)
+      }else if(data_name == "graph_covid_973.json"){
+        node_id_list = [[1800,1802,1820,1995],[1951,1954,1893],[2037,2020,2038],[2013,2016,2014],]
+        subgraph_plot(node_id_list)
+      }else if(data_name == "graph_covid_1492.json"){
+        node_id_list = [[11412,11414,11051],[5815,5821,2160]]
+        subgraph_plot(node_id_list)
+      }
+    })
+  });
+</script>
+
+<script>
+  // ============================ 子图的配置 ============================= //
+    subgraph_search = document.getElementById("subgraph_search")
+    const sub_width = subgraph_search.scrollWidth || 805;
+    const sub_height = subgraph_search.scrollHeight || 243;
+    const subgraph_tooltip = new G6.Tooltip({
+      offsetX: 10,
+      offsetY: 10,
+      fixToNode: [1, 0.5],
+      // the types of items that allow the tooltip show up
+      // 允许出现 tooltip 的 item 类型
+      itemTypes: ['node', 'edge'],
+      // custom the tooltip's content
+      // 自定义 tooltip 内容
+      getContent: (e) => {
+        const outDiv = document.createElement('div');
+        outDiv.style.width = 'fit-content';
+        outDiv.style.height = 'fit-content';
+        const model = e.item.getModel();
+        if (e.item.getType() === 'node') {
+          outDiv.innerHTML = `标签：${model.labels[0].replace("_439","")};<br/>节点ID：${model.id}<br/>属性：${model.name}`;
+        } else {
+          const source = e.item.getSource();
+          const target = e.item.getTarget();
+          outDiv.innerHTML = `标签: ${model.label_.replace("_439","")}<br/>边ID：${model.id}<br/>来源标签: ${source.getModel().labels[0].replace("_439","")}; &nbsp &nbsp来源: ${source.getModel().name}<br/>去向标签: ${target.getModel().labels[0].replace("_439","")}; &nbsp &nbsp去向: ${target.getModel().name}`;
+        }
+        return outDiv;
+      },
+    });
+    const subgraph = new G6.Graph({
+      container: "subgraph_search",
+      width: sub_width,
+      height: sub_height,
+      plugins: [subgraph_tooltip,],
+      layout: {
+        type: 'force',
+        edgeStrength: 2,
+        preventOverlap: true,
+        linkDistance:80,
+        nodeSpacing:20
+      },
+      modes: {
+        default: ['drag-canvas','drag-node','zoom-canvas','click-select',],
+      },
+      defaultNode: {
+        size: [25, 25],
+        style: {
+          lineWidth: 1,
+          // fill: '#DEE9FF',
+          fill: color_list[5],
+          stroke: '#5B8FF9',
+        },
+      },
+      defaultEdge: {
+        size: 2,
+        style: {
+          // stroke: '#e2e2e2',
+          stroke: color_list[10],
+          lineAppendWidth: 1,
+        },
+        labelCfg:{
+          style:{
+            fill:"white",
+          }
+        }
+      },
+      nodeStateStyles: {
+        highlight: {
+          opacity: 1,
+        },
+        dark: {
+          opacity: 0.2,
+        },
+      },
+      edgeStateStyles: {
+        highlight: {
+          stroke: '#999',
+        },
+      },
+    });
+
+    // 查找子图事件监控
+    subgraph.on('node:mouseenter', function (e) {
+      const item = e.item;
+      subgraph.setAutoPaint(false);
+      subgraph.getNodes().forEach(function (node) {
+        subgraph.clearItemStates(node);
+        subgraph.setItemState(node, 'dark', true);
+      });
+      subgraph.setItemState(item, 'dark', false);
+      subgraph.setItemState(item, 'highlight', true);
+      subgraph.getEdges().forEach(function (edge) {
+        if (edge.getSource() === item) {
+          subgraph.setItemState(edge.getTarget(), 'dark', false);
+          subgraph.setItemState(edge.getTarget(), 'highlight', true);
+          subgraph.setItemState(edge, 'highlight', true);
+          edge.toFront();
+        } else if (edge.getTarget() === item) {
+          subgraph.setItemState(edge.getSource(), 'dark', false);
+          subgraph.setItemState(edge.getSource(), 'highlight', true);
+          subgraph.setItemState(edge, 'highlight', true);
+          edge.toFront();
+        } else {
+          subgraph.setItemState(edge, 'highlight', false);
+        }
+      });
+      subgraph.paint();
+      subgraph.setAutoPaint(true);
+
+      // 更新当前点的信息
+      node_label = item._cfg.model.labels[0].replace('_439','')
+      document.getElementById("graph_info").getElementsByClassName("item")[2].getElementsByTagName('h4')[0].innerHTML = node_label
+      
+      let near_number = 0 
+      near_node = document.getElementsByClassName("marquee")[0]
+      let str = ""
+      item._cfg.edges.forEach(function(edge){
+        node = item._cfg.model.id == edge._cfg.model.source ? graph.findById(edge._cfg.model.target) : graph.findById(edge._cfg.model.source)         
+        id = node._cfg.model.id
+        label = node._cfg.model.labels[0].replace("_439","")
+        name = node._cfg.model.name
+        str = str + "<div class=\"row\"\><span class=\"col\">" + id
+        str = str + "</span\><span class=\"col\">" + name
+        str = str + "</span\><span class=\"col\">" + label +"</span\><span class=\"icon-dot\"></span\></div\>"
+        near_number = near_number + 1
+        })
+      near_node.innerHTML = str
+
+      near_edge = document.getElementsByClassName("marquee")[1]
+      str = ""
+      item._cfg.edges.forEach(function(edge){
+        id = edge._cfg.model.id
+        label = edge._cfg.model.label_.replace("_439","")
+        source_label = edge._cfg.model.source_label[0].replace("_439","")
+        source_id = edge._cfg.model.source
+        target_label = edge._cfg.model.target_label[0].replace("_439","")
+        target_id = edge._cfg.model.target
+        name = source_label + ": " + source_id + "-->" + target_label + ": " + target_id
+        str = str + "<div class=\"row\"\><span class=\"col\">" + id
+        str = str + "</span\><span class=\"col\">" + name
+        str = str + "</span\><span class=\"col\">" + label +"</span\><span class=\"icon-dot\"></span\></div\>"
+        })
+      near_edge.innerHTML = str
+
+      // 滚动速度自适应
+      elements = document.getElementsByClassName("marquee")
+      if (near_number >= 6){
+        for (let i=0 ;i < elements.length;i++){
+          elements[i].style.setProperty("animation","row " + near_number + "s linear infinite")
+          elements[i].onmouseover = function(){
+            this.style.setProperty("animation-play-state","paused")
+          }
+          elements[i].onmouseleave = function(){
+            this.style.setProperty("animation-play-state","running")
+          }
+        }   
+      }else{
+        for (let i=0 ;i < elements.length;i++){
+          elements[i].style.setProperty("animation","")
+        }
+      }
+      document.getElementById("near_number").innerHTML = near_number
+    });
+    subgraph.on('node:mouseleave', clearAllStatsSub);
+    
+    function clearAllStatsSub() {
+      subgraph.setAutoPaint(false);
+      subgraph.getNodes().forEach(function (node) {
+        subgraph.clearItemStates(node);
+      });
+      subgraph.getEdges().forEach(function (edge) {
+        subgraph.clearItemStates(edge);
+      });
+      subgraph.paint();
+      subgraph.setAutoPaint(true);
+    }
+    // 子图查找之找点及其边, 可设置颜色
+    // 三角形节点数据需要传入，从后端传入，算法部分；加载不同的数据，这部分需要更新
+    function subgraph_plot(node_id_list){
+      let node_id_set = new Set()
+      node_id_list.forEach(function(group){
+        group.forEach(function(element){
+          node_id_set.add(element)
+        })
+      })
+      let node_element_list = new Array()
+      let edge_element_list = new Array()
+      graph.getNodes().forEach(function(element){
+        if (node_id_set.has(parseInt(element._cfg.model.id))){
+            node_element_list.push({
+              "id":element._cfg.model.id,
+              "type":element._cfg.model.type,
+              "labels":element._cfg.model.labels,
+              "properties":element._cfg.model.properties,
+              "name":element._cfg.model.name,
+            })
+        }
+      })
+      graph.getEdges().forEach(function(element){
+        if (node_id_set.has(parseInt(element._cfg.model.source)) && node_id_set.has(parseInt(element._cfg.model.target))){
+          edge_element_list.push({
+            "id":element._cfg.model.id,
+            "type":element._cfg.model.type,
+            "source":element._cfg.model.source,
+            "target":element._cfg.model.target,
+            "source_label":element._cfg.model.source_label,
+            "target_label":element._cfg.model.target_label,
+            "label_":element._cfg.model.label_.replace('_439',""),
+            "label":element._cfg.model.label_.replace('_439',""),
+          })
+        }
+      })
+      subgraph.data({
+        nodes: node_element_list,
+        edges: edge_element_list
+      })
+      subgraph.render()
+
+      // 该改变不同三角形的颜色
+      subgraph.getNodes().forEach(function(element){
+          //element = subgraph.findById(number.toString())
+          color_index = node_label_class.indexOf(element._cfg.model.labels[0].replace("_439",""))            
+          element._cfg.model.style.fill = color_list[color_index]
+      })
+      subgraph.getEdges().forEach(function(element){
+          //element = subgraph.findById(number.toString())
+          color_index = edge_label_class.indexOf(element._cfg.model.label_.replace("_439",""))            
+          element._cfg.model.style.stroke = color_list[color_index]
+      })
+      subgraph.render() 
+    }
+    //node_id_list 作为全局变量，后续根据加载的数据不同进行变换
+    let node_id_list = [[62,59,60],[272,273,60],[274,275,276],[30,385,386]]
+    subgraph_plot(node_id_list)
+</script>
+
+
+<script>
+    // 由于echart配置基于原始的数据，因此需要等其加载完成
+    //--------------------------- echart配置 -----------------------------
+    pie1 = document.getElementById('pie1')
+    let chart_pie1 = echarts.init(pie1,'custom');
+    let option_pie1;
+    option_pie1 = {
+      animationDuration: 1500,
+      title: {
+        // text: '节点聚类',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+      },
+      legend: {
+        left: 'center',
+        bottom: 'bottom',
+        padding:[0,0,25,0],
+        data: pie1_name,
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          name: '数量/比例',
+          type: 'pie',
+          radius: [15, 80],
+          center: ['50%', '50%'],
+          roseType: 'area',
+          itemStyle: {
+            borderRadius: 5
+          },
+          data: pie1_data
+        }
+      ]
+    };
+    option_pie1 && chart_pie1.setOption(option_pie1);
+
+    pie2 = document.getElementById('pie2')
+    let chart_pie2 = echarts.init(pie2,'custom');
+    let option_pie2;
+    option_pie2 = {
+      animationDuration: 1500,
+      title: {
+        // text: '边的聚类',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+      },
+      legend: {
+        left: 'center',
+        top: 'bottom',
+        padding:[0,0,25,0],
+        data: pie2_name,
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          name: '数量/比例',
+          type: 'pie',
+          radius: [15, 80],
+          // center 调整中心大小
+          center: ['50%', '40%'],
+          roseType: 'area',
+          itemStyle: {
+            borderRadius: 5
+          },
+          data: pie2_data
+        }
+      ]
+    };
+    option_pie2 && chart_pie2.setOption(option_pie2);
+
+    degree_plot = document.getElementById('degree_plot')
+    var chart_plot = echarts.init(degree_plot,'custom');
+    var option_plot;
+    option_plot = {
+      animationDuration: 1500,
+      title:{
+        text: "节点的度分布",
+        left:'center'
+      },
+      tooltip: {
+        trigger: 'axis',
+        formatter: function (element) {
+          x_axis = element[0].value[0]
+          value = element[0].value[1]
+          return x_axis + "<br/><span style=\"display:inline-block;margin-right:4px;border-radius:10px;width:10px;height:10px;background-color:#5470c6;\"></span>&nbsp" + value
+        }, 
+        axisPointer: {
+          type: 'shadow',
+        }
+      },
+      grid: {
+        top:'15%',
+        left: '3%',
+        right: '3%',
+        bottom: '10%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'value',
+        name: '节点的度',
+        nameLocation:'middle',
+        splitNumber:10,
+        boundaryGap: false,
+        nameTextStyle: {
+          padding: [8,0,0,0]
+        }
+      },
+      yAxis: {
+        type: 'value',
+        boundaryGap: false,
+        name: '数量/个'
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          data: node_distribution,
+          type: 'line',
+          smooth: true,
+          itemStyle: {
+            normal: {
+              areaStyle: {type: 'default',color:color_list[5]}
+            }
+          },
+        }
+      ]
+    };
+    option_plot && chart_plot.setOption(option_plot);
+</script>
+
+<script>
+  
+  //--------------------------- 模式切换配置 -----------------------------
+  let mode_list = ["基础分类","社区挖掘","子图查找"]
+  let mode_text1 = document.getElementById("mode_text")
+  let mode_text2 = document.getElementById("text_change")
+  let mode_change = document.getElementById("mode_change")
+  let mode_change_left = document.getElementById("left_arrow")
+  let mode_change_right = document.getElementById("right_arrow")
+  
+  let cluster_select = document.getElementById("cluster_select")
+  let search_select = document.getElementById("search_select")
+  let classfication_select = document.getElementById("classfication_select")
+
+  mode_change.innerText = "基础分类"
+  // 模式切换
+  mode_change_left.onclick = function(){
+    // 主图复位
+    resetGraph()
+    graph.render()
+    
+    let index = mode_list.indexOf(mode_change.innerText)
+    let index_next = (index+1) % mode_list.length
+    let index_pre =  index != 0 ? (index-1) % mode_list.length:mode_list.length - 1
+    change_mode_by_index(index_pre)
+  }
+  mode_change_right.onclick = function(){
+    // 主图复位
+    resetGraph()
+    graph.render()
+
+    let index = mode_list.indexOf(mode_change.innerText)
+    let index_next = (index+1) % mode_list.length
+    let index_pre =  index != 0 ? (index-1) % mode_list.length:mode_list.length - 1
+    change_mode_by_index(index_next)
+  }
+  function change_mode_by_index(index){
+    if (mode_list[index] == "基础分类"){
+      degree_plot.style.display = "block"
+      subgraph_search.style.display = "none"
+
+      mode_change.innerText = mode_list[index]
+      mode_text1.innerText = "新冠数据的大图展示及分类"
+      mode_text2.innerHTML = "节点的度分布"
+      
+      mode_change.className = "custom-btn"
+      mode_change.classList.add("btn-15")
+      
+      classfication_select.style.display = "inline-block"
+      cluster_select.style.display = "none"
+      search_select.style.display = "none"
+
+      // 将之前的模式中的 value 进行归位
+      classfication_select.value = "none"
+      cluster_select.value = "none"
+      search_select.value = "none"
+    }else if(mode_list[index] == "社区挖掘"){
+      degree_plot.style.display = "block"
+      subgraph_search.style.display = "none"
+      
+      mode_change.innerText = "社区挖掘"
+      mode_text1.innerText = "疫情下社区行为模式挖掘"
+      mode_text2.innerHTML = "节点的度分布"
+
+      mode_change.className = "custom-btn"
+      mode_change.classList.add("btn-15-")
+      
+      classfication_select.style.display = "none"
+      cluster_select.style.display = "inline-block"
+      search_select.style.display = "none"
+
+      // 将之前的模式中的 value 进行归位
+      classfication_select.value = "none"
+      cluster_select.value = "none"
+      search_select.value = "none"
+    }else if(mode_list[index] == "子图查找"){
+      degree_plot.style.display = "none"
+      subgraph_search.style.display = "block"
+      subgraph.render()
+
+      mode_change.innerText = "子图查找"
+      mode_text1.innerText = "时空伴随者的子图查找"
+      mode_text2.innerHTML = "子图查找"
+
+      mode_change.className = "custom-btn"
+      mode_change.classList.add("btn-15--")
+      
+      classfication_select.style.display = "none"
+      cluster_select.style.display = "none"
+      search_select.style.display = "inline-block"
+
+      // 将之前的模式中的 value 进行归位
+      classfication_select.value = "none"
+      cluster_select.value = "none"
+      search_select.value = "none"
+    }
+  }
+</script>
+
+</html>
