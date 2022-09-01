@@ -2,7 +2,7 @@
 
 传染病大屏展示系统。包括数据实时更新以及 facebook prophet 算法进行实时预测，预测与数据更新频率：一天。
 
-访问地址：http://10.11.12.2:8080/
+访问地址：http://47.116.64.26/
 
 ### 概览
 
@@ -30,11 +30,11 @@
 
 **展示**
 
-![1658988486020](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/1.png)
+![1658988486020](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/1.png)
 
 点击图展示平台，进入如下
 
-![1658988486020](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/2.png)
+![1658988486020](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/2.png)
 
 ### 运行
 

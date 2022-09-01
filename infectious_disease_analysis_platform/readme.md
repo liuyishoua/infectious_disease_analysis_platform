@@ -2,7 +2,7 @@
 
 传染病大屏展示系统。包括数据实时更新以及 facebook prophet 算法进行实时预测，预测与数据更新频率：一天。
 
-访问地址：http://10.11.12.2:8080/
+访问地址：http://47.116.64.26/
 
 ### 概览
 
@@ -20,7 +20,7 @@
 
 **展示**
 
-![1658988486020](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/1.png)
+![1658988486020](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/1.png)
 
 ### 运行
 
@@ -59,7 +59,7 @@ python manage.py runserver 0.0.0.0:80
 
 * **infectious_disease_analysis_platform** 仅实现一个路由的转接，转到 visual 的 urls.py 文件内（如下图）。
 
-![整体逻辑](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/zhengti.png)
+![整体逻辑](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/zhengti.png)
 
 - 项目配置
 
@@ -81,7 +81,7 @@ infectious_disease_analysis_platform\infectious_disease_analysis_platform\settin
 
 * 这里需要着重注意的是 **原始数据的加载** 以及主页上几个 **动态图的实现**。
 
-![前端逻辑](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/houduan.png)
+![前端逻辑](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/houduan.png)
 
 
 
@@ -93,7 +93,7 @@ infectious_disease_analysis_platform\infectious_disease_analysis_platform\settin
 
 * 难点在**自动更新模块**。（通过 timeloop 库实现，开启一个线程自动监听，每过一天就更新一次元数据，即 /visual/static/datas/plot.json 文件）
 
-![后端逻辑](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/qianduan.png)
+![后端逻辑](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/qianduan.png)
 
 ### 项目进度
 * **总的来说**
@@ -102,7 +102,7 @@ infectious_disease_analysis_platform\infectious_disease_analysis_platform\settin
 
 2. **场景**：主页（已完成），图展示（已完成），国外疫情预测，疫情爆发临界建模，时空伴随者模拟推演
 
-![大逻辑](http://10.11.12.2/liuyishou/infectious_visual/-/raw/master/images/docker/infectious/all_logic.png)
+![大逻辑](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/all_logic.png)
 
 
 * **已完成**
