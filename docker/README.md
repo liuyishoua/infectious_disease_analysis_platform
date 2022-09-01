@@ -74,17 +74,17 @@ root@VM-8-2-ubuntu: docker exec -it oligei /bin/bash
 # 6. 按 ctrl + p + q 退出容器。这时候不仅 curl 127.0.0.1 能访问。通过公网ip地址也能访问。比如我的服务器 http://82.156.12.199/
 ```
 
-![1658994155697](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/4.png)
+![1658994155697](https://raw.githubusercontent.com/liuyishoua/infectious_disease_analysis_platform/master/images/docker/infectious/4.png)
 
 ​											图一
 
-![1658994414284](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/5.png)
+![1658994414284](https://raw.githubusercontent.com/liuyishoua/infectious_disease_analysis_platform/master/images/docker/infectious/5.png)
 
 ​											图二
 
 ### 展示效果
 
-![1658988486020](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/1.png)
+![1658988486020](https://raw.githubusercontent.com/liuyishoua/infectious_disease_analysis_platform/master/images/docker/infectious/1.png)
 
 ### 项目描述
 
@@ -104,7 +104,7 @@ root@VM-8-2-ubuntu: docker exec -it oligei /bin/bash
 
 采用 ubuntu16.04 + uwsgi + nginx + django。
 
-![1658989874885](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/3.png)
+![1658989874885](https://raw.githubusercontent.com/liuyishoua/infectious_disease_analysis_platform/master/images/docker/infectious/3.png)
 
 1. 看过去很复杂，其实 uwsgi 与 nginx 都是独立的模块，他们通过 tcp 端口 9000 实现通讯。上图搞错了，9000 改成 81。
 

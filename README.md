@@ -26,15 +26,15 @@
 
 3. 由于展示的数据格式较为统一（Json文件），暂时未考虑使用数据库技术。
 
-**TIPS**: **项目的进展以及细节，请** [点击跳转](http://10.11.12.2/liuyishou/infectious_visual/-/tree/master/infectious_disease_analysis_platform) **查看**
+**TIPS**: **项目的进展以及细节，请** [点击跳转](https://github.com/liuyishoua/infectious_disease_analysis_platform/tree/master/infectious_disease_analysis_platform) **查看**
 
 **展示**
 
-![1658988486020](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/1.png)
+![1658988486020](https://raw.githubusercontent.com/liuyishoua/infectious_disease_analysis_platform/master/images/docker/infectious/1.png)
 
 点击图展示平台，进入如下
 
-![1658988486020](https://raw.githubusercontent.com/liuyishoua/images/master/docker/infectious/2.png)
+![1658988486021](https://raw.githubusercontent.com/liuyishoua/infectious_disease_analysis_platform/master/images/docker/infectious/2.png)
 
 ### 运行
 
